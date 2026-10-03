@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fun Day Out Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#14205a;--panel:#1e2d7d;--paper:#fffdf7;--ink:#14205a;--sun:#ffc93c;--aqua:#27c4b5;--coral:#ff5d73;--ok:#1fb86b;--no:#e5484d;--mute:#b9c3ff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1540;--panel:#17236b;--paper:#f3f0e6}}
+:root[data-theme="dark"]{--bg:#0d1540;--panel:#17236b;--paper:#f3f0e6}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#fff;font-family:Nunito,system-ui,"Segoe UI",Arial,sans-serif;font-weight:600;min-height:100vh;
+background-image:radial-gradient(circle at 12% 8%,rgba(255,255,255,.18) 0 2px,transparent 3px),radial-gradient(circle at 78% 14%,rgba(255,255,255,.14) 0 2px,transparent 3px),radial-gradient(circle at 40% 4%,rgba(255,255,255,.12) 0 1.5px,transparent 3px);background-size:260px 200px}
+h1,h2,h3,.brand{font-family:"Baloo 2",Nunito,system-ui,sans-serif;font-weight:800;margin:0}
+#app{max-width:900px;margin:0 auto;padding:12px 14px 30px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.brand{font-size:1.25rem;color:var(--sun)}
+.hud{display:flex;gap:8px}
+.hud span{background:var(--panel);border-radius:999px;padding:5px 12px;font-weight:800}
+#route{display:flex;gap:6px;margin:6px 0 14px}
+.stop{flex:1;display:flex;align-items:center;gap:6px;background:var(--panel);border-radius:12px;padding:6px 8px;color:var(--mute);font-size:.78rem;min-width:0}
+.stop i{font-style:normal;width:22px;height:22px;flex:none;border-radius:50%;background:#3a4aa8;display:grid;place-items:center;font-weight:800;color:#fff}
+.stop span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stop.now{background:var(--sun);color:var(--ink)}.stop.now i{background:var(--ink)}
+.stop.done i{background:var(--ok)}
+@media (max-width:560px){.stop span{display:none}.stop.now span{display:inline}.stop{flex:0 0 auto}.stop.now{flex:1}}
+h2{font-size:1.6rem;line-height:1.1}
+.hint{color:var(--mute);margin:6px 0 14px;line-height:1.4}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+@media (min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}.grid.g2{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--paper);color:var(--ink);border-radius:16px;position:relative;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.card.wide{max-width:560px;margin:0 auto 14px}
+.pic{aspect-ratio:4/3;border-radius:16px 16px 0 0;overflow:hidden;background:#dfe6ff}
+.pic.short{aspect-ratio:16/8}
+.pic svg{width:100%;height:100%;display:block}
+.stub{position:relative;border-top:2px dashed #c9c2a8;padding:12px 10px 10px}
+.stub::before,.stub::after{content:"";position:absolute;top:-10px;width:18px;height:18px;border-radius:50%;background:var(--bg)}
+.stub::before{left:-9px}.stub::after{right:-9px}
+.zone{border:2.5px dashed #9aa6e6;border-radius:12px;min-height:44px;display:flex;align-items:center;justify-content:center;color:#6b76b8;font-weight:800;padding:4px 8px;text-align:center;font-size:.9rem;transition:transform .12s,background .12s}
+.zone.hot{background:#fff3c4;border-color:var(--sun);transform:scale(1.04)}
+.zone.ok{border-style:solid;border-color:var(--ok);background:#dff8ea;color:#0a6b3c}
+.zone + .zone{margin-top:8px}
+.slots{display:flex;flex-wrap:wrap;gap:8px}
+.slots .zone{margin:0;min-width:60px;flex:0 0 auto}
+.bank{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:var(--panel);border-radius:18px;padding:14px 12px;position:sticky;bottom:10px;box-shadow:0 8px 24px rgba(0,0,0,.35);min-height:64px}
+.bank.flat{position:static}
+.chip{touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;background:var(--sun);color:var(--ink);font-weight:800;padding:10px 16px;border-radius:999px;box-shadow:0 3px 0 #c99a14;display:inline-block;font-size:1rem}
+.chip.who{background:var(--aqua);box-shadow:0 3px 0 #178a7e}
+.chip.when{background:var(--coral);color:#fff;box-shadow:0 3px 0 #b83048}
+.chip.used{opacity:.22;pointer-events:none;box-shadow:none}
+.chip.lifted{opacity:.35}
+.ghost{position:fixed;z-index:99;pointer-events:none;transform:rotate(-3deg) scale(1.08);box-shadow:0 12px 24px rgba(0,0,0,.4)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.tip{max-width:560px;margin:0 auto 14px;background:var(--panel);border-radius:12px;padding:8px 12px;color:var(--mute);text-align:center}
+.tip b{color:var(--sun)}
+.btn{font-family:"Baloo 2",Nunito,sans-serif;font-weight:800;font-size:1.15rem;background:var(--sun);color:var(--ink);border:0;border-radius:999px;padding:10px 26px;cursor:pointer;box-shadow:0 4px 0 #c99a14}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #c99a14}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.small{font-size:.95rem;padding:6px 16px;background:var(--panel);color:#fff;box-shadow:none}
+.btn:focus-visible,.chip:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.panel{background:var(--panel);border-radius:20px;padding:26px 18px;max-width:520px;margin:24px auto}
+.center{text-align:center}
+.big{font-size:3.4rem}
+.notes{display:none;background:var(--panel);border-radius:12px;padding:10px 14px;margin-bottom:14px;line-height:1.6}
+.notes.show{display:block}
+.buckets{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.bucket{border-radius:18px;padding:14px 8px;text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;border:3px dashed rgba(255,255,255,.55);font-family:"Baloo 2",Nunito,sans-serif;font-weight:800;font-size:1.15rem;transition:transform .12s,background .12s}
+.bucket small{font-family:Nunito,sans-serif;font-weight:600;font-size:.8rem;opacity:.9}
+.bucket.now{background:#157f77}.bucket.future{background:#b6334a}
+.bucket.hot{transform:scale(1.04);border-color:var(--sun);filter:brightness(1.2)}
+.bucket .em{font-size:2rem}
+.deck{display:flex;justify-content:center;padding:6px 0 4px;min-height:80px}
+.deck .chip{font-size:1.1rem;padding:16px 20px;border-radius:18px;max-width:100%;text-align:center;line-height:1.3}
+.timebar{height:10px;background:var(--panel);border-radius:99px;overflow:hidden;margin:6px 0 10px}
+.timebar i{display:block;height:100%;width:100%;background:var(--aqua);transition:width .1s linear}
+.timebar.low i{background:var(--coral)}
+.qmark{height:100%;display:grid;place-items:center;font-family:"Baloo 2",sans-serif;font-size:3rem;color:#9aa6e6}
+.sentence{min-height:44px;text-align:center;font-family:"Baloo 2",Nunito,sans-serif;font-weight:800;font-size:1.2rem;padding:8px 10px 0;color:var(--ink)}
+.plans{max-width:560px;margin:14px auto;padding-left:22px;line-height:1.7}
+.cert{background:var(--paper);color:var(--ink);border-radius:20px;padding:26px 18px;max-width:560px;margin:20px auto;text-align:center;border:6px double var(--sun);box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.cert h2{font-size:2rem}
+.stars{font-size:2.6rem;letter-spacing:6px;color:var(--sun);text-shadow:0 2px 0 #c99a14}
+.credit{margin-top:14px;font-size:.9rem;opacity:.85}
+.start-ticket{max-width:520px;margin:20px auto}
+.start-ticket .row{display:grid;grid-template-columns:repeat(3,1fr)}
+.start-ticket .row .pic{border-radius:0;aspect-ratio:1}
+.start-ticket .row .pic:first-child{border-top-left-radius:16px}.start-ticket .row .pic:last-child{border-top-right-radius:16px}
+.start-ticket h1{font-size:2.1rem;line-height:1.05;padding:14px 12px 4px;text-align:center}
+.start-ticket p{margin:0;padding:0 14px 8px;text-align:center;color:#46508f;line-height:1.4}
+.start-ticket input{width:100%;font:inherit;font-weight:800;border:2.5px solid #9aa6e6;border-radius:12px;padding:10px 12px;margin:8px 0 12px;color:var(--ink);background:#fff}
+footer{text-align:center;color:var(--mute);font-size:.8rem;margin-top:22px}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translate(-50%,-80px);background:#fff;color:var(--ink);font-weight:800;padding:8px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .25s;z-index:150;max-width:90vw;text-align:center}
+#toast.show{transform:translate(-50%,0)}
+.conf{position:fixed;top:-30px;font-size:24px;animation:fall 2.4s linear forwards;pointer-events:none;z-index:120}
+@keyframes fall{to{transform:translateY(112vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="brand">Fun Day Out Quest</div>
+    <div class="hud"><span>⭐ <b id="score">0</b></span><span>🔥 <b id="streak">0</b></span></div>
+  </div>
+  <div id="route"></div>
+  <main id="stage"></main>
+  <footer>Grade 7 · Unit 1 · Lesson 5 · Created by T.Badria Alfalahi</footer>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* ---------- Drawings (original SVG art) ---------- */
+const ART={
+bowling:`<rect width="120" height="90" fill="#FFE3B8"/><polygon points="44,6 76,6 112,90 8,90" fill="#D8A25E"/><g fill="#fff" stroke="#c33" stroke-width="1"><ellipse cx="60" cy="16" rx="3.2" ry="5"/><ellipse cx="53" cy="22" rx="3.6" ry="5.5"/><ellipse cx="67" cy="22" rx="3.6" ry="5.5"/><ellipse cx="46" cy="30" rx="4" ry="6"/><ellipse cx="60" cy="30" rx="4" ry="6"/><ellipse cx="74" cy="30" rx="4" ry="6"/></g><circle cx="60" cy="72" r="11" fill="#2457c5"/><circle cx="56" cy="68" r="1.8" fill="#0a1f55"/><circle cx="61" cy="66" r="1.8" fill="#0a1f55"/><circle cx="62" cy="71" r="1.8" fill="#0a1f55"/>`,
+aquarium:`<rect width="120" height="90" fill="#1c6fb8"/><rect y="62" width="120" height="28" fill="#14518a"/><g fill="#7fe0ff" opacity=".7"><circle cx="20" cy="20" r="4"/><circle cx="28" cy="34" r="2.5"/><circle cx="96" cy="16" r="3"/></g><path d="M58 40q22-22 44 0q-22 22-44 0z" fill="#ff8a3d"/><path d="M100 40l14-12v24z" fill="#ff8a3d"/><circle cx="70" cy="37" r="3" fill="#fff"/><circle cx="71" cy="37" r="1.4" fill="#000"/><path d="M16 64q18-14 36 0q-18 14-36 0z" fill="#ffd23f"/><path d="M50 64l10-8v16z" fill="#ffd23f"/><path d="M80 90q-4-20 4-30M92 90q6-16-2-26" stroke="#3ddc84" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+softplay:`<rect width="120" height="90" fill="#FFF1B5"/><polygon points="14,58 14,18 62,58" fill="#ff5d73"/><rect x="10" y="14" width="8" height="46" rx="3" fill="#c93a52"/><rect y="58" width="120" height="32" fill="#7c6cf0"/><circle cx="14" cy="62" r="8" fill="#ffc93c"/><circle cx="32" cy="66" r="8" fill="#27c4b5"/><circle cx="50" cy="62" r="8" fill="#ff5d73"/><circle cx="68" cy="67" r="8" fill="#ffc93c"/><circle cx="86" cy="62" r="8" fill="#27c4b5"/><circle cx="104" cy="66" r="8" fill="#ff5d73"/><circle cx="24" cy="80" r="8" fill="#ff5d73"/><circle cx="44" cy="82" r="8" fill="#ffc93c"/><circle cx="64" cy="80" r="8" fill="#27c4b5"/><circle cx="84" cy="82" r="8" fill="#ff5d73"/><circle cx="104" cy="80" r="8" fill="#ffc93c"/><path d="M90 16l4 9 10 1-8 6 3 10-9-6-9 6 3-10-8-6 10-1z" fill="#ffc93c"/>`,
+science:`<rect width="120" height="90" fill="#D6F0E6"/><path d="M50 12h20v6h-3v22l22 38q3 8-6 8H37q-9 0-6-8l22-38V18h-3z" fill="#fff" stroke="#2d6a5a" stroke-width="3" stroke-linejoin="round"/><path d="M42 62h36l10 18q2 4-4 4H36q-6 0-4-4z" fill="#3ddc84"/><circle cx="58" cy="52" r="3" fill="#b8ffd9"/><circle cx="66" cy="44" r="2" fill="#b8ffd9"/><g fill="none" stroke="#ff8a3d" stroke-width="2"><ellipse cx="102" cy="22" rx="12" ry="5"/><ellipse cx="102" cy="22" rx="12" ry="5" transform="rotate(60 102 22)"/><ellipse cx="102" cy="22" rx="12" ry="5" transform="rotate(120 102 22)"/></g><circle cx="102" cy="22" r="2.5" fill="#ff8a3d"/>`,
+cinema:`<rect width="120" height="90" fill="#2b1a4d"/><rect x="14" y="8" width="92" height="44" rx="3" fill="#6ee7ff" stroke="#fff" stroke-width="2"/><text x="60" y="40" text-anchor="middle" font-size="26" font-weight="800" fill="#2b1a4d" font-family="Arial,sans-serif">3D</text><rect x="30" y="62" width="26" height="16" rx="6" fill="#ff3b5c"/><rect x="64" y="62" width="26" height="16" rx="6" fill="#2fb8ff"/><path d="M56 68h8M30 66l-8-4M90 66l8-4" stroke="#fff" stroke-width="3" stroke-linecap="round"/><rect y="84" width="120" height="6" fill="#7a1530"/>`,
+gallery:`<rect width="120" height="90" fill="#EADFF5"/><rect x="18" y="10" width="84" height="56" fill="#d4a017"/><rect x="24" y="16" width="72" height="44" fill="#9fdcff"/><circle cx="78" cy="30" r="7" fill="#ffd23f"/><polygon points="24,60 50,32 70,60" fill="#4caf7a"/><polygon points="52,60 76,38 96,60" fill="#2e8b5e"/><rect y="76" width="120" height="14" fill="#b49bd0"/><rect x="44" y="68" width="32" height="8" rx="3" fill="#7b5ea7"/>`,
+rink:`<rect width="120" height="90" fill="#DDF3FF"/><ellipse cx="60" cy="78" rx="54" ry="11" fill="#fff" stroke="#9ed8f5" stroke-width="2"/><path d="M38 12h20v28l24 8q8 3 8 11v6H34V22q0-6 4-10z" fill="#e8365d"/><path d="M42 24h12M42 31h12M44 38h12" stroke="#fff" stroke-width="2" stroke-linecap="round"/><rect x="34" y="62" width="56" height="5" fill="#fff"/><rect x="42" y="67" width="4" height="6" fill="#8895b3"/><rect x="78" y="67" width="4" height="6" fill="#8895b3"/><rect x="30" y="72" width="66" height="4" rx="2" fill="#8895b3"/><path d="M100 16l2 5 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1z" fill="#9ed8f5"/>`,
+safari:`<rect width="120" height="90" fill="#FFD27A"/><circle cx="98" cy="20" r="11" fill="#ff8a3d"/><rect y="68" width="120" height="22" fill="#C98B3F"/><rect x="14" y="34" width="5" height="36" fill="#6b4423"/><ellipse cx="16" cy="32" rx="22" ry="7" fill="#3b8f3a"/><circle cx="72" cy="56" r="20" fill="#b5651d"/><circle cx="72" cy="56" r="13" fill="#f2b457"/><circle cx="62" cy="43" r="5" fill="#f2b457"/><circle cx="82" cy="43" r="5" fill="#f2b457"/><circle cx="67" cy="53" r="2" fill="#222"/><circle cx="77" cy="53" r="2" fill="#222"/><polygon points="72,58 68,63 76,63" fill="#6b3a1a"/><path d="M72 63q-4 5-8 2M72 63q4 5 8 2" stroke="#6b3a1a" stroke-width="1.5" fill="none"/>`,
+themepark:`<rect width="120" height="90" fill="#9ADBFF"/><path d="M40 44L24 88M40 44L56 88" stroke="#2457c5" stroke-width="3" fill="none"/><g stroke="#2457c5" stroke-width="3" fill="none"><circle cx="40" cy="44" r="26"/><path d="M40 18V70M14 44H66M22 26L58 62M58 26L22 62"/></g><circle cx="40" cy="44" r="4" fill="#2457c5"/><g fill="#ff5d73"><circle cx="40" cy="18" r="4"/><circle cx="40" cy="70" r="4"/><circle cx="14" cy="44" r="4"/><circle cx="66" cy="44" r="4"/><circle cx="22" cy="26" r="4"/><circle cx="58" cy="26" r="4"/><circle cx="22" cy="62" r="4"/><circle cx="58" cy="62" r="4"/></g><path d="M68 82q10-52 22-52t16 52" stroke="#ff5d73" stroke-width="4" fill="none"/><rect y="84" width="120" height="6" fill="#5cb85c"/>`,
+circus:`<rect width="120" height="90" fill="#FFE9A8"/><rect y="78" width="120" height="12" fill="#e0b565"/><rect x="20" y="46" width="16" height="32" fill="#e8365d"/><rect x="36" y="46" width="16" height="32" fill="#fff"/><rect x="52" y="46" width="16" height="32" fill="#e8365d"/><rect x="68" y="46" width="16" height="32" fill="#fff"/><rect x="84" y="46" width="16" height="32" fill="#e8365d"/><polygon points="60,12 14,48 106,48" fill="#2457c5"/><polygon points="60,12 44,48 76,48" fill="#ffc93c"/><path d="M60 12V2" stroke="#6b4423" stroke-width="2"/><polygon points="60,2 74,6 60,10" fill="#e8365d"/><path d="M52 78V62q8-10 16 0v16z" fill="#4a1d5e"/>`,
+planetarium:`<rect width="120" height="90" fill="#0d1240"/><path d="M10 80a50 50 0 0 1 100 0z" fill="#2c3a8f"/><rect x="6" y="80" width="108" height="8" fill="#1a2266"/><g fill="#fff"><circle cx="30" cy="62" r="1.5"/><circle cx="44" cy="46" r="1.3"/><circle cx="78" cy="42" r="1.5"/><circle cx="92" cy="60" r="1.3"/><circle cx="70" cy="68" r="1.2"/><circle cx="22" cy="74" r="1.2"/></g><circle cx="58" cy="58" r="10" fill="#ffb347"/><ellipse cx="58" cy="58" rx="19" ry="5" fill="none" stroke="#ffe08a" stroke-width="2.5" transform="rotate(-18 58 58)"/><path d="M96 24a9 9 0 1 0 6 14a7 7 0 1 1-6-14z" fill="#ffe08a"/>`,
+playground:`<rect width="120" height="90" fill="#BDEBFF"/><rect y="74" width="120" height="16" fill="#5cb85c"/><rect x="14" y="26" width="10" height="52" fill="#7a4a21"/><rect x="92" y="26" width="10" height="52" fill="#7a4a21"/><circle cx="19" cy="20" r="18" fill="#2e9e4f"/><circle cx="97" cy="20" r="18" fill="#2e9e4f"/><path d="M24 36Q60 56 92 36" stroke="#8b5a2b" stroke-width="1.6" fill="none"/><path d="M24 46Q60 66 92 46" stroke="#8b5a2b" stroke-width="3" fill="none"/><g stroke="#c98a45" stroke-width="3"><path d="M31 50v6M41 53v6M51 55v6M58 56v6M65 55v6M75 53v6M85 50v6"/></g>`
+};
+const art=id=>`<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${id}">${ART[id]}</svg>`;
+const PLACES=[
+ {id:'bowling',name:'bowling alley'},{id:'aquarium',name:'aquarium'},{id:'softplay',name:'soft play centre'},
+ {id:'science',name:'science museum'},{id:'cinema',name:'3D cinema'},{id:'gallery',name:'art gallery'},
+ {id:'rink',name:'ice rink'},{id:'safari',name:'safari park'},{id:'themepark',name:'theme park'},
+ {id:'circus',name:'circus'},{id:'planetarium',name:'planetarium'},{id:'playground',name:'adventure playground'}
+];
+const P=Object.fromEntries(PLACES.map(p=>[p.id,p]));
+
+/* ---------- Sound & speech ---------- */
+let ac;
+function beep(f,d,type='sine',v=.14,delay=0){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(ac.destination);const t=ac.currentTime+delay;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d)}catch(e){}}
+const sfx={ok(){beep(660,.12);beep(880,.18,'sine',.14,.1)},no(){beep(170,.25,'sawtooth',.07)},win(){[523,659,784,1047].forEach((f,i)=>beep(f,.22,'triangle',.14,i*.12))}};
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-GB';u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+
+/* ---------- State & helpers ---------- */
+const stage=$('#stage');
+let state={name:'',score:0,right:0,wrong:0,streak:0,level:0};
+let timer=null;
+const clearTimer=()=>{if(timer){clearInterval(timer);timer=null}};
+function hud(){$('#score').textContent=state.score;$('#streak').textContent=state.streak}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),1500)}
+function good(pts=10){state.streak++;const b=state.streak>=3?5:0;state.score+=pts+b;state.right++;sfx.ok();hud();if(b)toast('🔥 Streak bonus +5')}
+function bad(el){state.streak=0;state.wrong++;sfx.no();hud();if(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}}
+function confetti(){const e=['🎉','⭐','🎈','✨','🎊'];for(let i=0;i<36;i++){const d=document.createElement('div');d.className='conf';d.textContent=e[i%e.length];d.style.left=Math.random()*100+'vw';d.style.animationDelay=Math.random()*.8+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),3500)}}
+
+/* ---------- Drag engine (mouse + touch) ---------- */
+function makeDraggable(el,onDrop){
+  el.addEventListener('pointerdown',e=>{
+    if(el.classList.contains('used'))return;
+    e.preventDefault();
+    const r=el.getBoundingClientRect();
+    const g=el.cloneNode(true);g.classList.add('ghost');g.style.width=r.width+'px';
+    document.body.appendChild(g);
+    const ox=e.clientX-r.left,oy=e.clientY-r.top;
+    const move=(x,y)=>{g.style.left=(x-ox)+'px';g.style.top=(y-oy)+'px'};
+    move(e.clientX,e.clientY);el.classList.add('lifted');
+    let hover=null;
+    const under=(x,y)=>{g.style.display='none';const t=document.elementFromPoint(x,y);g.style.display='';return t&&t.closest('.zone,.bucket')};
+    const mv=ev=>{move(ev.clientX,ev.clientY);const z=under(ev.clientX,ev.clientY);if(hover!==z){hover&&hover.classList.remove('hot');hover=z;z&&z.classList.add('hot')}};
+    const up=ev=>{
+      document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',up);
+      const z=under(ev.clientX,ev.clientY);g.remove();el.classList.remove('lifted');hover&&hover.classList.remove('hot');
+      if(z)onDrop(el,z);
+    };
+    document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up);
+  });
+}
+
+/* ---------- Route & flow ---------- */
+const LEVELS=[{name:'Look and match'},{name:'Build the plan'},{name:"Who's going where?"},{name:'Now or future?'},{name:'Plan your trip'}];
+function route(){$('#route').innerHTML=LEVELS.map((l,i)=>`<div class="stop ${i<state.level?'done':i===state.level?'now':''}"><i>${i<state.level?'✓':i+1}</i><span>${l.name}</span></div>`).join('')}
+function startLevel(){clearTimer();route();window.scrollTo(0,0);[L1,L2,L3,L4,L5][state.level]()}
+function levelDone(){
+  clearTimer();sfx.win();confetti();state.score+=20;hud();
+  const last=state.level===LEVELS.length-1;
+  stage.innerHTML=`<div class="panel center"><div class="big">🎟️</div><h2>Mission ${state.level+1} complete!</h2><p class="hint">+20 bonus points</p><button class="btn" id="next">${last?'See my certificate':'Next mission'}</button></div>`;
+  $('#next').onclick=()=>{state.level++;last?end():startLevel()};
+}
+
+/* ---------- Start ---------- */
+function start(){
+  clearTimer();state={name:state.name,score:0,right:0,wrong:0,streak:0,level:0};hud();$('#route').innerHTML='';
+  stage.innerHTML=`<div class="card start-ticket"><div class="row"><div class="pic">${art('aquarium')}</div><div class="pic">${art('themepark')}</div><div class="pic">${art('planetarium')}</div></div>
+  <div class="stub"><h1>Fun Day Out Quest</h1><p>Plan amazing days out! Match places, build sentences and use the Present continuous for future plans.</p>
+  <input id="nm" maxlength="24" placeholder="Write your name" aria-label="Your name" value="${esc(state.name)}"><div class="center"><button class="btn" id="go">Start the quest</button></div>
+  <p class="credit">Created by T.Badria Alfalahi</p></div></div>`;
+  $('#go').onclick=()=>{state.name=$('#nm').value.trim()||'Super Student';ac=ac||null;startLevel()};
+}
+
+/* ---------- Mission 1: Look and match ---------- */
+function L1(){
+  const all=shuffle(PLACES),groups=[all.slice(0,4),all.slice(4,8),all.slice(8,12)];let r=0;
+  function round(){
+    const g=groups[r];let left=g.length;
+    stage.innerHTML=`<h2>Look and match</h2><p class="hint">Round ${r+1} of 3. Drag each word onto its picture. Listen and say it aloud!</p>
+    <div class="grid">${g.map(p=>`<div class="card"><div class="pic">${art(p.id)}</div><div class="stub"><div class="zone" data-id="${p.id}">drop here</div></div></div>`).join('')}</div>
+    <div class="bank">${shuffle(g).map(p=>`<div class="chip" data-id="${p.id}">${p.name}</div>`).join('')}</div>`;
+    stage.querySelectorAll('.chip').forEach(c=>makeDraggable(c,(chip,z)=>{
+      if(!z.dataset.id||z.classList.contains('ok'))return;
+      if(z.dataset.id===chip.dataset.id){z.textContent=chip.textContent;z.classList.add('ok');chip.classList.add('used');say(chip.textContent);good();if(--left===0)setTimeout(()=>{r++;r<3?round():levelDone()},1100)}
+      else bad(z);
+    }));
+  }
+  round();
+}
+
+/* ---------- Mission 2: Build the plan ---------- */
+const SENT=[
+ {p:'aquarium',t:["We're","going","to","the","aquarium","next week."],x:'went'},
+ {p:'playground',t:["He's","going","to","the","adventure playground","tomorrow."],x:'goes'},
+ {p:'cinema',t:["They're","watching","a","film","at","the","3D cinema","tonight."],x:'watch'},
+ {p:'planetarium',t:["She's","visiting","the","planetarium","on","Monday."],x:'visited'},
+ {p:'safari',t:["We're","seeing","the","lions","at","the","safari park","on Saturday."],x:'see'}
+];
+function L2(){
+  let i=0;
+  function round(){
+    const s=SENT[i];let left=s.t.length;
+    stage.innerHTML=`<h2>Build the plan</h2><p class="hint">Sentence ${i+1} of ${SENT.length}. Drag the words into the right order. There is one extra word!</p>
+    <div class="card wide"><div class="pic short">${art(s.p)}</div><div class="stub"><div class="slots">${s.t.map(()=>`<div class="zone">&nbsp;</div>`).join('')}</div></div></div>
+    <div class="tip">Plan = <b>am / is / are</b> + verb<b>-ing</b> + future time</div>
+    <div class="bank">${shuffle([...s.t,s.x]).map(w=>`<div class="chip">${esc(w)}</div>`).join('')}</div>`;
+    const slots=[...stage.querySelectorAll('.slots .zone')];
+    stage.querySelectorAll('.chip').forEach(c=>makeDraggable(c,(chip,z)=>{
+      const k=slots.indexOf(z);if(k<0||z.classList.contains('ok'))return;
+      if(chip.textContent===s.t[k]){z.textContent=chip.textContent;z.classList.add('ok');chip.classList.add('used');good();
+        if(--left===0){say(s.t.join(' '));setTimeout(()=>{i++;i<SENT.length?round():levelDone()},1700)}}
+      else bad(z);
+    }));
+  }
+  round();
+}
+
+/* ---------- Mission 3: Who's going where? ---------- */
+const KIDS=[
+ {who:'Girl 1',when:'next week',p:'aquarium',note:'Girl 1 goes to the aquarium. Six friends are coming and they watch a film about the sea.'},
+ {who:'Boy 1',when:'this month',p:'themepark',note:'Boy 1 takes five friends to the theme park. He is not scared of the roller coasters.'},
+ {who:'Boy 2',when:'tomorrow',p:'playground',note:'Boy 2 goes to the adventure playground. He climbs high and walks on bridges.'},
+ {who:'Girl 2',when:'next Monday',p:'planetarium',note:'Girl 2 has a school day at the planetarium. Her class goes by bus.'}
+];
+function L3(){
+  let left=KIDS.length*2,hinted=false;
+  stage.innerHTML=`<h2>Who's going where?</h2><p class="hint">Four children talk about their special days out. Drag a name and a time to each ticket. Listen to track 1.11 in class, or use a hint.</p>
+  <div style="margin-bottom:12px"><button class="btn small" id="hb">💡 Hint (-5 points)</button></div>
+  <div class="notes" id="notes">${KIDS.map(k=>esc(k.note)).join('<br>')}</div>
+  <div class="grid g2">${shuffle(KIDS).map(k=>`<div class="card"><div class="pic">${art(k.p)}</div><div class="stub"><div class="zone" data-type="who" data-ans="${k.who}">Who?</div><div class="zone" data-type="when" data-ans="${k.when}">When?</div></div></div>`).join('')}</div>
+  <div class="bank">${shuffle([...KIDS.map(k=>`<div class="chip who" data-type="who">${k.who}</div>`),...KIDS.map(k=>`<div class="chip when" data-type="when">${k.when}</div>`)]).join('')}</div>`;
+  $('#hb').onclick=()=>{if(!hinted){hinted=true;state.score=Math.max(0,state.score-5);hud()}$('#notes').classList.add('show')};
+  stage.querySelectorAll('.chip').forEach(c=>makeDraggable(c,(chip,z)=>{
+    if(!z.dataset.type||z.classList.contains('ok'))return;
+    if(z.dataset.type!==chip.dataset.type){toast(z.dataset.type==='who'?'This box needs a name':'This box needs a time');return bad(z)}
+    if(z.dataset.ans===chip.textContent){z.textContent=chip.textContent;z.classList.add('ok');chip.classList.add('used');good();if(--left===0)setTimeout(levelDone,900)}
+    else bad(z);
+  }));
+}
+
+/* ---------- Mission 4: Now or future? ---------- */
+const NF=[
+ {s:"I'm meeting my friend this afternoon.",a:'future',c:'this afternoon'},
+ {s:"We're visiting friends now.",a:'now',c:'now'},
+ {s:"We're flying home tomorrow.",a:'future',c:'tomorrow'},
+ {s:"She's watching a film right now.",a:'now',c:'right now'},
+ {s:"They're watching a show on Tuesday.",a:'future',c:'on Tuesday'},
+ {s:"He's taking five friends to a theme park this month.",a:'future',c:'this month'},
+ {s:"The children are playing in the park at the moment.",a:'now',c:'at the moment'},
+ {s:"We aren't going out on Wednesday.",a:'future',c:'on Wednesday'}
+];
+function L4(){
+  const q=shuffle(NF);let i=0;
+  function card(){
+    if(i>=q.length)return levelDone();
+    clearTimer();const c=q[i];let t=15;
+    stage.innerHTML=`<h2>Now or future?</h2><p class="hint">Card ${i+1} of ${q.length}. Is it happening now, or is it a future plan? Drag the card fast!</p>
+    <div class="timebar" id="tb"><i></i></div>
+    <div class="buckets"><div class="bucket now" data-ans="now"><span class="em">⏱️</span>Happening now<small>right now</small></div><div class="bucket future" data-ans="future"><span class="em">📅</span>Future plan<small>arranged</small></div></div>
+    <div class="deck"><div class="chip" id="cd">${esc(c.s)}</div></div>`;
+    makeDraggable($('#cd'),(chip,z)=>{
+      if(!z.dataset.ans)return;
+      if(z.dataset.ans===c.a){clearTimer();good();toast('✔ Clue: '+c.c);say(c.s);i++;setTimeout(card,1000)}
+      else{bad(chip);toast('Look for the time clue')}
+    });
+    timer=setInterval(()=>{t-=.1;const tb=$('#tb');if(!tb){clearTimer();return}tb.firstChild.style.width=Math.max(0,t/15*100)+'%';tb.classList.toggle('low',t<5);
+      if(t<=0){clearTimer();bad();toast('Time up! Clue: '+c.c);i++;setTimeout(card,1300)}},100);
+  }
+  card();
+}
+
+/* ---------- Mission 5: Plan your trip ---------- */
+const WHENS=['tomorrow','next week','on Saturday','this evening'];
+function L5(){
+  const plans=[],pl=shuffle(PLACES).slice(0,6);
+  function round(){
+    let place=null,when=null;
+    stage.innerHTML=`<h2>Plan your trip</h2><p class="hint">Plan ${plans.length+1} of 3. Choose a great place and a time for your family trip.</p>
+    <div class="card wide"><div class="pic short" id="prev"><div class="qmark">?</div></div><div class="stub"><div class="zone" data-type="place">Place</div><div class="zone" data-type="when">When?</div><div class="sentence" id="sent">&nbsp;</div></div></div>
+    <div class="center" style="margin-bottom:14px"><button class="btn" id="add" disabled>Add to my plan</button></div>
+    ${plans.length?`<ol class="plans">${plans.map(p=>`<li>${esc(p)}</li>`).join('')}</ol>`:''}
+    <div class="bank flat">${pl.map(p=>`<div class="chip who" data-type="place" data-id="${p.id}">${p.name}</div>`).join('')}${WHENS.map(w=>`<div class="chip when" data-type="when">${w}</div>`).join('')}</div>`;
+    const zs=[...stage.querySelectorAll('.zone')];
+    const upd=()=>{if(place&&when){const s=`We're visiting the ${place.name} ${when}.`;$('#sent').textContent=s;$('#add').disabled=false}};
+    stage.querySelectorAll('.chip').forEach(c=>makeDraggable(c,(chip,z)=>{
+      if(!z.dataset.type)return;
+      if(z.dataset.type!==chip.dataset.type){toast(z.dataset.type==='place'?'This box needs a place':'This box needs a time');return bad(z)}
+      z.textContent=chip.textContent;z.classList.add('ok');sfx.ok();
+      if(chip.dataset.type==='place'){place=P[chip.dataset.id];$('#prev').innerHTML=art(place.id)}else when=chip.textContent;
+      upd();
+    }));
+    $('#add').onclick=()=>{const s=`We're visiting the ${place.name} ${when}.`;plans.push(s);say(s);good(15);plans.length>=3?setTimeout(levelDone,900):round()};
+  }
+  round();
+}
+
+/* ---------- Certificate ---------- */
+function end(){
+  clearTimer();$('#route').innerHTML='';sfx.win();confetti();
+  const tot=state.right+state.wrong,acc=tot?state.right/tot:1,stars=acc>.85?3:acc>.65?2:1;
+  stage.innerHTML=`<div class="cert"><div class="big">🏆</div><h2 id="cn"></h2><p>You planned amazing days out and used the Present continuous for the future!</p>
+  <div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div><p><b>${state.score}</b> points · <b>${state.right}</b> correct answers</p>
+  <p class="credit">Created by T.Badria Alfalahi</p></div><div class="center"><button class="btn" id="again">Play again</button></div>`;
+  $('#cn').textContent='Well done, '+state.name+'!';
+  $('#again').onclick=start;
+}
+
+hud();start();
+</script>
+</body>
+</html>
